@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 300" role="img"
+     aria-labelledby="title desc" width="660" height="300">
+  <!--
+    Palette reason: subject is backup coverage against risk. Slate (#31465c) is
+    covered time, the safe state. Amber (#b45309) is the accent and appears once,
+    on the uncovered leading gap, the single thing the reader should look at
+    first. Teal (#0f766e) marks the widest recovery point gap that breaks the
+    declared objective. Two core colours (slate, teal) plus one accent (amber).
+    Every number here comes from running the CLI against samples/ in this
+    session: the window edges, the seven backup timestamps, the leading gap of
+    six hours, and the achieved RPO of 27h from `coverage`.
+  -->
+  <title id="title">Recovery coverage across the sample window</title>
+  <desc id="desc">A timeline from 2026-08-01T00:00Z to 2026-08-04T18:00Z. An amber
+    band marks the leading gap from 00:00 to 06:00 where no full backup exists to
+    restore from. Backups are drawn as ticks. The widest gap between recovery
+    points, 27 hours from the orphaned incremental to the next full, is marked in
+    teal and exceeds the declared 24 hour objective.</desc>
+
+  <rect x="0" y="0" width="660" height="300" fill="#ffffff"/>
+
