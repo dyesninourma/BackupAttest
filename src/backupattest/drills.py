@@ -50,3 +50,29 @@ class Drill:
 
 @dataclass(frozen=True)
 class DrillLog:
+    """A parsed drill log: the declared interval and the drills themselves."""
+
+    interval_days: int
+    drills: list[Drill]
+
+    @property
+    def last_ok(self) -> Drill | None:
+        """The most recent drill with an ok outcome, or None."""
+        oks = [d for d in self.drills if d.ok]
+        return max(oks, key=lambda d: d.timestamp) if oks else None
+
+
+def parse_drills(text: str) -> DrillLog:
+    """Parse the whole drill log."""
+    interval: int | None = None
+    drills: list[Drill] = []
+    for lineno, raw in enumerate(text.splitlines(), start=1):
+        stripped = raw.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        parts = stripped.split()
+        if parts[0] == "interval":
+            if len(parts) != 2:
+                raise DrillError(f"line {lineno}: interval takes one integer")
+            try:
+                interval = int(parts[1])
