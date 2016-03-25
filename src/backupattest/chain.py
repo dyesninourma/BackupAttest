@@ -39,3 +39,44 @@ class Chain:
         return self.base is not None
 
     @property
+    def recovery_point(self) -> datetime | None:
+        """Timestamp of the newest backup in the chain, the state you recover to."""
+        if self.base is None:
+            return None
+        if self.increments:
+            return self.increments[-1].timestamp
+        return self.base.timestamp
+
+    @property
+    def members(self) -> tuple[Entry, ...]:
+        if self.base is None:
+            return ()
+        return (self.base, *self.increments)
+
+
+@dataclass(frozen=True)
+class Orphan:
+    """An incremental that cannot attach to a governing full."""
+
+    entry: Entry
+    reason: str
+
+
+def latest_full_before(entries: list[Entry], target: datetime) -> Entry | None:
+    """Return the newest full backup taken at or before target, or None."""
+    candidates = [e for e in entries if e.is_full and e.timestamp <= target]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda e: e.timestamp)
+
+
+def build_chain(entries: list[Entry], target: datetime) -> Chain:
+    """Assemble the recovery chain for target.
+
+    Increments are included only when their parent link resolves back to the
+    governing full, directly or through a run of incrementals rooted at it.
+    """
+    base = latest_full_before(entries, target)
+    if base is None:
+        return Chain(target=target, base=None, increments=())
+

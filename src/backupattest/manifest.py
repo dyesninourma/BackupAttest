@@ -46,3 +46,28 @@ class Entry:
     @property
     def is_full(self) -> bool:
         return self.kind == "full"
+
+    @property
+    def is_incr(self) -> bool:
+        return self.kind == "incr"
+
+
+def parse_timestamp(text: str) -> datetime:
+    """Parse a UTC ISO 8601 timestamp with a trailing Z."""
+    if not _TS.match(text):
+        raise ManifestError(f"bad timestamp: {text!r}")
+    naive = datetime.strptime(text, "%Y-%m-%dT%H:%M:%SZ")
+    return naive.replace(tzinfo=timezone.utc)
+
+
+def parse_line(line: str, lineno: int) -> Entry:
+    """Parse a single manifest data line into an Entry."""
+    parts = line.split()
+    if len(parts) < 6:
+        raise ManifestError(f"line {lineno}: expected at least 6 fields, got {len(parts)}")
+    kind, ident, ts, size, digest, verified = parts[:6]
+    parent = parts[6] if len(parts) > 6 else None
+
+    if kind not in ("full", "incr"):
+        raise ManifestError(f"line {lineno}: kind must be full or incr, got {kind!r}")
+    if verified not in ("yes", "no"):
