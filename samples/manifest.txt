@@ -1,0 +1,9 @@
+# backupattest sample manifest, hand authored as a test vector.
+# Format: <kind> <id> <timestamp> <size> <digest> <verified> [parent]
+# Timeline runs across the first week of August 2026, UTC.
+#
+# Deliberate flaws baked in for the demo:
+#   - the window opens at 2026-08-01T00:00:00Z but the first full is at 06:00,
+#     so there is a leading gap with nothing to restore from.
+#   - i-b3 names parent f-missing, which was never taken, so it is orphaned.
+#   - the second full is more than a day after the last chained incremental,
