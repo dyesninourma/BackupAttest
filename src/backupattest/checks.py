@@ -65,36 +65,3 @@ class Report:
                 Finding(
                     "R001",
                     f"achieved RPO {format_duration(self.rpo.achieved)} exceeds declared "
-                    f"{format_duration(self.rpo.declared)}",
-                )
-            )
-        for entry in self.unverified:
-            out.append(
-                Finding(
-                    "V001",
-                    f"unverified digest on {entry.id} ({entry.digest})",
-                )
-            )
-        if self.no_drill:
-            out.append(Finding("D002", "no successful restore drill on record"))
-        elif self.stale_drill:
-            last = self.last_drill
-            out.append(
-                Finding(
-                    "D001",
-                    f"last successful drill {last:%Y-%m-%dT%H:%M:%SZ} is outside the declared interval",
-                )
-            )
-        return out
-
-    @property
-    def clean(self) -> bool:
-        return not self.findings()
-
-
-def unverified_backups(entries: list[Entry]) -> list[Entry]:
-    """Backups whose digest was never checked, sorted for stable output."""
-    out = [e for e in entries if not e.verified]
-    out.sort(key=lambda e: (e.timestamp, e.id))
-    return out
-

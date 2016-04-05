@@ -80,3 +80,44 @@ def build_chain(entries: list[Entry], target: datetime) -> Chain:
     if base is None:
         return Chain(target=target, base=None, increments=())
 
+    by_id = {e.id: e for e in entries}
+    rooted = {base.id}
+    increments: list[Entry] = []
+    # Walk incrementals in timestamp order; an incr joins the chain if its parent
+    # is already rooted at this full and it falls within the window.
+    for entry in sorted(entries, key=lambda e: (e.timestamp, e.id)):
+        if not entry.is_incr:
+            continue
+        if entry.timestamp <= base.timestamp or entry.timestamp > target:
+            continue
+        parent = by_id.get(entry.parent)
+        if parent is None:
+            continue
+        if entry.parent in rooted:
+            rooted.add(entry.id)
+            increments.append(entry)
+    increments.sort(key=lambda e: (e.timestamp, e.id))
+    return Chain(target=target, base=base, increments=tuple(increments))
+
+
+def find_orphans(entries: list[Entry]) -> list[Orphan]:
+    """Find incrementals that cannot attach to any full.
+
+    An incremental is orphaned when its parent id does not exist, or when
+    following parent links never reaches a full backup.
+    """
+    by_id = {e.id: e for e in entries}
+    orphans: list[Orphan] = []
+    for entry in entries:
+        if not entry.is_incr:
+            continue
+        seen: set[str] = set()
+        cursor: Entry | None = entry
+        reason = ""
+        while cursor is not None and cursor.is_incr:
+            if cursor.parent not in by_id:
+                reason = f"parent {cursor.parent!r} does not exist"
+                cursor = None
+                break
+            if cursor.parent in seen:
+                reason = f"parent chain loops at {cursor.parent!r}"
