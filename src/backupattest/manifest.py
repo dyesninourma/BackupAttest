@@ -71,3 +71,27 @@ def parse_line(line: str, lineno: int) -> Entry:
     if kind not in ("full", "incr"):
         raise ManifestError(f"line {lineno}: kind must be full or incr, got {kind!r}")
     if verified not in ("yes", "no"):
+        raise ManifestError(f"line {lineno}: verified must be yes or no, got {verified!r}")
+    try:
+        size_val = int(size)
+    except ValueError:
+        raise ManifestError(f"line {lineno}: size not an integer: {size!r}") from None
+    if size_val < 0:
+        raise ManifestError(f"line {lineno}: size is negative: {size_val}")
+
+    if kind == "full" and parent is not None:
+        raise ManifestError(f"line {lineno}: full backup {ident!r} must not name a parent")
+    if kind == "incr" and parent is None:
+        raise ManifestError(f"line {lineno}: incremental {ident!r} must name a parent")
+
+    return Entry(
+        kind=kind,
+        id=ident,
+        timestamp=parse_timestamp(ts),
+        size=size_val,
+        digest=digest,
+        verified=verified == "yes",
+        parent=parent,
+    )
+
+
