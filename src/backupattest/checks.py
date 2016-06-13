@@ -31,37 +31,3 @@ class Finding:
     code: str
     message: str
 
-
-@dataclass
-class Report:
-    """The full set of findings plus the data needed to render them."""
-
-    gaps: list[Gap] = field(default_factory=list)
-    orphans: list[Orphan] = field(default_factory=list)
-    rpo: RpoResult | None = None
-    unverified: list[Entry] = field(default_factory=list)
-    stale_drill: bool = False
-    last_drill: datetime | None = None
-    no_drill: bool = False
-
-    def findings(self) -> list[Finding]:
-        out: list[Finding] = []
-        for gap in self.gaps:
-            out.append(
-                Finding(
-                    "G001",
-                    f"gap {gap.start:%Y-%m-%dT%H:%M:%SZ} to {gap.end:%Y-%m-%dT%H:%M:%SZ}: {gap.reason}",
-                )
-            )
-        for orphan in self.orphans:
-            out.append(
-                Finding(
-                    "O001",
-                    f"orphan {orphan.entry.id} at {orphan.entry.timestamp:%Y-%m-%dT%H:%M:%SZ}: {orphan.reason}",
-                )
-            )
-        if self.rpo is not None and not self.rpo.meets:
-            out.append(
-                Finding(
-                    "R001",
-                    f"achieved RPO {format_duration(self.rpo.achieved)} exceeds declared "
