@@ -62,6 +62,9 @@ services:
     {% endif %}
     restart: {{ restart_policy | default('unless-stopped') }}
     {% if ports %}
+    ports:
+      - "5678:5678"
+    {% endif %}
 
 volumes:
   data:
@@ -73,5 +76,4 @@ networks:
   {% if network.external %}
     external: true
   {% endif %}
-{% endif %}
 {% endif %}
