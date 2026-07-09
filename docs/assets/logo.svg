@@ -5,3 +5,19 @@
     falls exactly at that morpheme boundary. Slate (#31465c) reads as the stored
     data, teal (#0f766e) reads as the verification act. No accent is used in the
     logo because a wordmark should carry one idea, the split itself.
+    Two core colours, neutrals for the background and rule.
+  -->
+  <title id="title">backupattest wordmark</title>
+  <desc id="desc">The word backupattest, with backup in slate and attest in teal,
+    the colour changing at the morpheme boundary between the two words.</desc>
+  <rect x="0" y="0" width="240" height="96" fill="#ffffff"/>
+  <line x1="16" y1="70" x2="224" y2="70" stroke="#c9d2dc" stroke-width="1.5"/>
+  <text x="16" y="56"
+        font-family='"Cascadia Mono", "JetBrains Mono", Consolas, "DejaVu Sans Mono", monospace'
+        font-size="34" font-weight="600">
+    <tspan fill="#31465c">backup</tspan><tspan fill="#0f766e">attest</tspan>
+  </text>
+  <text x="16" y="86"
+        font-family='-apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+        font-size="12" fill="#5b6673">could you actually restore</text>
+</svg>
