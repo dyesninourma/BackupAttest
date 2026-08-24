@@ -1,3 +1,13 @@
 # backupattest sample restore drill log, hand authored as a test vector.
 # Format: <timestamp> <backup_id> <outcome> [note]
 # The interval directive declares how often a drill should run.
+#
+# Declared interval is 7 days. Measured against the default now (the newest
+# backup at 2026-08-04T18:00:00Z), the last successful drill on 2026-07-20 is
+# more than 7 days old, so it is stale on purpose.
+
+interval 7
+
+2026-07-06T10:00:00Z f-1 ok  restored to staging, checksums matched
+2026-07-13T10:00:00Z i-a2 fail truncated archive, restore abandoned
+2026-07-20T10:00:00Z f-1 ok  restored to staging, boot verified
