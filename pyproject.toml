@@ -7,3 +7,21 @@ name = "backupattest"
 version = "0.1.0"
 description = "Verify a backup regime can actually restore, not just report success."
 readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "the backupattest authors" }]
+keywords = ["backup", "restore", "recovery", "rpo", "audit"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: System :: Archiving :: Backup",
+]
+
+[project.scripts]
+backupattest = "backupattest.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"

@@ -62,3 +62,67 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_drills = sub.add_parser("drills", help="check restore drill freshness only")
     _add_common(p_drills)
+
+    sub.add_parser("version", help="print the version")
+    return parser
+
+
+def _load_drill_log(args):
+    if not args.drills_path:
+        raise DrillError("this command needs --drills")
+    return load_drills(args.drills_path)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    if args.command == "version":
+        print(f"backupattest {__version__}")
+        return 0
+
+    try:
+        entries = load_manifest(args.manifest)
+    except (ManifestError, OSError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    if not entries:
+        print("error: manifest is empty", file=sys.stderr)
+        return 2
+
+    try:
+        if args.command == "chain":
+            target = parse_timestamp(args.target)
+            chain = build_chain(entries, target)
+            print("\n".join(render_chain(chain)))
+            return 0 if chain.assembled else 1
+
+        log = _load_drill_log(args)
+        window_start, window_end = _window(entries, args)
+        now = _now(entries, args)
+        report = build_report(
+            entries,
+            log,
+            timedelta(hours=args.rpo_hours),
+            window_start,
+            window_end,
+            now,
+        )
+
+        if args.command == "coverage":
+            print("\n".join(render_report(report)))
+            return 0 if report.clean else 1
+
+        if args.command == "drills":
+            print("\n".join(render_drills(report)))
+            return 0 if not (report.stale_drill or report.no_drill) else 1
+    except (ManifestError, DrillError, OSError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    parser.error("unknown command")
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
