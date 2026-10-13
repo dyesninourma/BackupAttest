@@ -7,3 +7,13 @@
 #     so there is a leading gap with nothing to restore from.
 #   - i-b3 names parent f-missing, which was never taken, so it is orphaned.
 #   - the second full is more than a day after the last chained incremental,
+#     so the widest recoverable gap is wider than a 24h declared RPO.
+#   - f-2 has verified=no, an unchecked digest.
+
+full f-1  2026-08-01T06:00:00Z 5242880 sha256:1a1a1a1a yes
+incr i-a1 2026-08-01T18:00:00Z  262144 sha256:2b2b2b2b yes f-1
+incr i-a2 2026-08-02T06:00:00Z  131072 sha256:3c3c3c3c yes i-a1
+incr i-b3 2026-08-02T18:00:00Z  131072 sha256:4d4d4d4d yes f-missing
+full f-2  2026-08-03T21:00:00Z 5308416 sha256:5e5e5e5e no
+incr i-c1 2026-08-04T06:00:00Z  196608 sha256:6f6f6f6f yes f-2
+incr i-c2 2026-08-04T18:00:00Z  163840 sha256:7a7a7a7a yes i-c1
