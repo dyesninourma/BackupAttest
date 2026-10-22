@@ -29,6 +29,16 @@ from .manifest import ManifestError, load_manifest, parse_timestamp
 from .report import render_chain, render_drills, render_report
 
 
+def _positive_int(raw: str) -> int:
+    try:
+        value = int(raw)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{raw!r} is not an integer")
+    if value <= 0:
+        raise argparse.ArgumentTypeError("must be a positive number of hours")
+    return value
+
+
 def _window(entries, args):
     """Resolve the sample window from flags or the manifest span."""
     start = parse_timestamp(args.window_start) if args.window_start else entries[0].timestamp
@@ -43,7 +53,7 @@ def _now(entries, args):
 def _add_common(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--manifest", required=True, help="path to the backup manifest")
     parser.add_argument("--drills", dest="drills_path", help="path to the restore drill log")
-    parser.add_argument("--rpo-hours", type=int, default=24, help="declared RPO in hours")
+    parser.add_argument("--rpo-hours", type=_positive_int, default=24, help="declared RPO in hours (> 0)")
     parser.add_argument("--window-start", help="window start timestamp, ISO 8601 UTC")
     parser.add_argument("--window-end", help="window end timestamp, ISO 8601 UTC")
     parser.add_argument("--now", help="moment to measure drill freshness against, ISO 8601 UTC")
